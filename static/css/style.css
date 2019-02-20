@@ -1,0 +1,26 @@
+html , body {
+	background: #d7030f;
+	color: #ffffff;
+	font-family: Helvetica;
+	margin: 0;
+	padding: 0;
+}
+
+#canvas_box {
+    background: #ffffff;
+    width: 1080px;
+	height: 720px;
+	margin: auto;
+	left:0; right:0; top:0; bottom:0;
+	position: absolute;
+}
+
+.box {
+	border:solid 1px #000000;
+    background: #ffffff;
+    width: 50%;
+	height: 50%;
+	margin: auto;
+	left:0; right:0; top:0; bottom:0;
+	position: absolute;
+}

@@ -1,0 +1,122 @@
+<html>
+<head>
+<link rel="stylesheet" href="/static/css/style.css">
+<link rel="stylesheet" href="/static/css/bulma.css">
+</head>
+<body>
+	<script type="text/javascript">
+		// Set the date we're counting down to
+		var countDownDate = new Date("Dec 24, 2018 18:00:00").getTime();
+
+		// Update the count down every 1 second
+		var x = setInterval(function() {
+
+		  // Get todays date and time
+		  var now = new Date().getTime();
+
+		  // Find the distance between now and the count down date
+		  var distance = countDownDate - now;
+
+		  // Time calculations for days, hours, minutes and seconds
+		  var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+		  var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+		  var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+		  var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+		  // Display the result in the element with id="demo"
+		  document.getElementById("timer").innerHTML = "Tid til juleaften: <br>" + days + "d " + hours + "h "
+		  + minutes + "m " + seconds + "s ";
+
+		  // If the count down is finished, write some text 
+		  if (distance < 0) {
+		    clearInterval(x);
+		    document.getElementById("timer").innerHTML = "Glædelig jul!";
+		  }
+		}, 1000);
+	</script>
+<p id="timer"></p>
+<p id="kills"></p>
+<div id="canvas_box">
+<div>
+    <canvas id="canvas" width="1080" height="720" style="background: url('/static/img/snow.jpeg')"></canvas>
+    <form>
+        <div class="box" id="input_box">
+            <div class="field">
+                <div class="control">
+                    <input class="input is-primary" type="text" placeholder="Name" id="name" maxlength="16">
+                </div>
+            </div>
+            <div class="field">
+                <div class="control">
+                    <center><input type="submit" class="button" onclick="joinGame();" value="Submit"></center>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<center hidden id="startButton"><button class="button" style="margin: 10px;" onclick="socket.emit('start');">Start Game</button></center>
+</div>
+<audio id="song" src="/static/mp3/last_christmas.mp3" loop></audio>
+</body>
+<script src="/static/js/socket.io.js"></script>
+<script src="/static/js/keyboard.js"></script>
+<script src="/static/js/game.js"></script>
+<script>
+var socket = io();
+
+socket.on('init', function(data){
+    //document.getElementById("data").innerText = JSON.stringify(data.id);
+    join(data);
+});
+
+socket.on('start', function(data){
+    start(data);
+});
+
+socket.on('player_leave', function(id){
+    game.player_leave(id);
+});
+
+socket.on('move', function(data){
+
+    if (data.id === game.self_id) {
+        if (data.snowball) {
+
+            for (var j = 0; j < game.snowballs.length; j++) {
+                if (game.snowballs[j].id === -1) {
+                    game.snowballs[j].id = data.snowball_id;
+                    break;
+                }
+            }
+        }
+    } else {
+
+        if (game.players.hasOwnProperty(data.id)) {
+            game.players[data.id].updates.push(data);
+        }
+    }
+});
+
+socket.on('startable', function(value){
+    game.startable = value;
+
+    if (game.startable) {
+        document.getElementById("startButton").removeAttribute("hidden");
+    } else {
+        document.getElementById("startButton").setAttribute("hidden", "hidden");
+    }
+});
+
+function joinGame() {
+    var name = document.getElementById("name");
+    var elem = document.getElementById("input_box");
+    elem.parentNode.removeChild(elem);
+
+    socket.emit('join', name.value);
+}
+
+
+
+document.getElementById("song").play();
+</script>
+</html>
